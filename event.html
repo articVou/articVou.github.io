@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Event - Artiva</title>
+        <link rel="stylesheet" href="/artiva/css/style.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto&display=swap" rel="stylesheet"/>
+        <style>   
+            footer {
+                text-align: center;
+                padding: 20px;
+                background-color: #333;
+                color: #fff;
+            }       
+            .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }       
+            .panel {
+            background-color: #8DA18B;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+        .panel img {
+            width: 200px;
+            height: 150px;
+            margin-right: 20px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .panel .info {
+            flex: 1;
+        }
+        .panel .info h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .panel .info p {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        </style>        
+    </head>
+<body>
+    <div class="navbar">
+        <div class="logo">Artiva</div>
+        <div class="menu">
+            <a href="index.html">Beranda</a>
+            <a href="galeriGuest.html">Galeri</a>
+            <a href="event.html" class="active">Event</a>
+            <a href="about.html">Tentang Artiva</a>
+        </div>
+        <div class="auth">
+            <a href="register.html">Daftar Akun</a>
+            <a href="login.html">Masuk</a>
+        </div>
+    </div>
+    </div>
+
+    <div class="container" id="eventsContainer">
+        <!-- Panel event akan dimuat secara dinamis -->
+    </div>
+
+    <footer class="footer">
+        <div class="header">
+            <h1>Mudah Untuk Memulai</h1>
+            <p>Dapatkan update eksklusif tentang karya terbaru, event, dan penawaran 
+                spesial langsung di inbox Anda.</p>
+            <div class="buttons">
+                <a href="register.html">Belanja Sekarang</a>
+            </div>
+        </div>
+        <div class="content">
+            <h2>Artiva.</h2>
+            <p>Artiva adalah platform yang berfokus pada pelestarian dan promosi seni 
+                serta budaya lokal Indonesia. Kami percaya bahwa seni memiliki kekuatan 
+                untuk menghubungkan masyarakat dengan akar budaya mereka.</p>
+            <p>artiva@gmail.com</p>
+            <div class="links">
+                <a href="index.html">Beranda</a> | 
+                <a href="about.html">Tentang Kami</a> | 
+                <a href="galeriGuest.html">Galeri</a> | 
+                <a href="seniman.html">Seniman</a> | 
+                <a href="register.html">Belanja</a> |
+                <a href="https://wa.me/6285604077466?text=Halo,%20saya%20ingin%20bertanya!" target="_blank">Hubungi Kami</a>
+            </div>
+        </div>
+        <div class="bot-footer">
+            <p>SINCE, 2024</p>
+            <p>© 2024 COPYRIGHT BY ZARVAISM - ARTIVA</p>
+            <p><a href="#">TERM, PRIVACY POLICY</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Menggunakan AJAX untuk memuat data event dari server
+        fetch('getEvents.php')
+            .then(response => response.json())
+            .then(events => {
+                const container = document.getElementById('eventsContainer');
+                if (events.length > 0) {
+                    events.forEach(event => {
+                        const panel = document.createElement('div');
+                        panel.className = 'panel';
+                        panel.innerHTML = `
+                        <img src="/artiva/imageEvent/${event.image}" alt="Event Image">
+                            <div class="info">
+                                <h3>${event.title}</h3>
+                                <p class="location">${event.description}</p>
+                                <p class="date">Tanggal: ${event.event_date}</p>
+                                <p class="status">Status: ${event.status_event}</p>
+                            </div>
+                        `;
+                        container.appendChild(panel);
+                    });
+                } else {
+                    container.innerHTML = '<p>Tidak ada event yang tersedia.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching events:', error);
+                document.getElementById('eventsContainer').innerHTML = '<p>Terjadi kesalahan saat memuat event.</p>';
+            });
+    </script>    
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeri - Artiva</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.navbar .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+.navbar .menu {
+    display: flex;
+    gap: 30px;
+}
+.navbar .menu a {
+    text-decoration: none;
+    color: #000000;
+    font-size: 16px;
+}
+.navbar .menu a:hover {
+    text-decoration: underline;
+}
+.navbar .auth {
+    display: flex;
+    gap: 20px;
+}
+.navbar .auth a {
+    text-decoration: none;
+    color: #000000;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 1px solid #000000;
+}
+.navbar .auth a:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+        /* Galeri container */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        /* Item galeri */
+        .gallery-item {
+            position: relative;
+            border: 2px solid #ccc; /* Border untuk item galeri */
+            border-radius: 10px; /* Sedikit melengkung di sudut */
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Efek bayangan */
+            background-color: #fff;
+            text-align: center;
+            transition: all 0.3s ease-in-out; /* Transisi lebih halus */
+        }
+
+        /* Judul galeri */
+        .gallery-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            white-space: nowrap; /* Hindari teks memanjang ke bawah */
+            overflow: hidden; /* Potong teks yang terlalu panjang */
+            text-overflow: ellipsis; /* Tambahkan "..." untuk teks yang terpotong */
+        }
+
+        /* Gambar dalam item */
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            transition: filter 0.3s ease; /* Transisi blur lebih halus */
+        }
+
+        /* Tombol Selengkapnya */
+        .gallery-item button {
+            display: block;
+            margin: 10px auto;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .gallery-item button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px); /* Efek sedikit naik saat hover */
+        }
+
+        /* Deskripsi tambahan (hidden by default) */
+        .gallery-description {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            text-align: left;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: 0; /* Mulai dengan ketinggian 0 */
+            overflow: hidden;
+            opacity: 0; /* Mulai dengan opacity 0 */
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out; /* Transisi untuk max-height dan opacity */
+        }
+
+        /* Aktifkan border hanya untuk deskripsi terbuka */
+        .gallery-description.active {
+            display: block;
+            max-height: 400px; /* Berikan ketinggian maksimal */
+            opacity: 1; /* Opacity menjadi 1 */
+        }
+
+        /* Efek blur pada gambar */
+        .gallery-container .gallery-item img {
+            filter: blur(5px);
+        }
+
+        .gallery-container .gallery-item:hover img {
+            filter: blur(0);
+        }
+
+        /* Pesan loading */
+        .loading {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin: 20px 0;
+        }
+
+        /* Tidak ada hasil */
+        #no-results {
+            display: none;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Animasi roll down (muncul) */
+        @keyframes rollDown {
+            from {
+                max-height: 0;
+                opacity: 0;
+            }
+            to {
+                max-height: 400px;
+                opacity: 1;
+            }
+        }
+
+        /* Animasi untuk roll up (hilang) */
+        @keyframes rollUp {
+            from {
+                max-height: 400px;
+                opacity: 1;
+            }
+            to {
+                max-height: 0;
+                opacity: 0;
+            }
+        }
+
+        /* Tombol Floating */
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #007bff;
+            color: white;
+            font-size: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            z-index: 1000; /* Menjamin tombol tidak tertutup */
+        }
+
+        .floating-button span {
+            font-size: 30px;
+            display: block;
+        }
+/* Footer */
+.footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.footer .header {
+    margin-bottom: 20px;
+}
+
+.footer .header h1 {
+    margin-bottom: 10px;
+}
+
+.footer .content {
+    margin-bottom: 20px;
+}
+
+.footer .links a {
+    color: #000;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.footer .links a:hover {
+    text-decoration: underline;
+}
+
+.bot-footer {
+    font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .event-panel {
+        flex-direction: column;
+    }
+
+    .event-description {
+        padding: 10px;
+    }
+}
+.footer .content, .footer .bot-footer {
+    color: #000; /* Set warna teks menjadi hitam */
+}
+
+.footer .header {
+    background-color: #a0b2a6;
+    padding: 40px 20px;
+    text-align: center;
+    color: white;
+}
+.footer .header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+.footer .header p {
+    margin: 10px 0 20px;
+    font-size: 1em;
+}
+.footer .header .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+.footer .header .buttons a {
+    background-color: #e57373;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1em;
+}
+.footer .header .buttons a:nth-child(2) {
+    background-color: #f06292;
+}
+.footer .content {
+    background-color: #fdf6e3;
+    padding: 40px 20px;
+    text-align: center;
+}
+.footer .content h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+.footer .content p {
+    font-size: 1em;
+    margin-bottom: 20px;
+}
+.footer .content a {
+    color: #333;
+    text-decoration: none;
+}
+.footer .bot-footer {
+    background-color: #fdf6e3;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.8em;
+    color: #333;
+    border-top: 1px solid #ccc;
+}
+.footer .bot-footer a {
+    color: #333;
+    text-decoration: none;
+} 
+            .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        } 
+        .panel {
+            background-color: #8DA18B;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-right: 20px;
+            margin-left: 20px;
+        }      
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Artiva</div>
+        <div class="menu">
+            <a href="index.html">Beranda</a>
+            <a href="galeriGuest.html">Galeri</a>
+            <a href="event.html">Event</a>
+            <a href="about.html">Tentang Artiva</a>
+        </div>
+        <div class="auth">
+            <a href="register.html">Daftar Akun</a>
+            <a href="login.html">Masuk</a>
+        </div>        
+    </div>
+
+    <section>
+        <p class="loading" id="loading">Memuat data galeri...</p>
+        <div class="gallery-container" id="gallery"></div>
+        <p id="no-results">Tidak ada hasil ditemukan.</p>
+    </section>
+
+    <script>
+        async function fetchGallery() {
+            const loadingElement = document.getElementById('loading');
+            const galleryContainer = document.getElementById('gallery');
+            const noResults = document.getElementById('no-results');
+
+            try {
+                // Tampilkan loading saat data sedang diambil
+                loadingElement.style.display = 'block';
+                noResults.style.display = 'none';
+
+                const response = await fetch('galeri.php'); // Sesuaikan dengan file PHP yang mengambil data galeri
+                if (!response.ok) {
+                    throw new Error('Gagal memuat data galeri.');
+                }
+
+                const data = await response.json();
+                galleryContainer.innerHTML = ''; // Bersihkan kontainer sebelumnya
+
+                if (data.length === 0) {
+                    noResults.style.display = 'block';
+                    return;
+                }
+
+                // Loop untuk membuat elemen galeri
+                data.forEach(item => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.classList.add('gallery-item');
+
+                    // Isi gallery-item dengan title, image, button (deskripsi tersembunyi awalnya)
+                    galleryItem.innerHTML = `
+                        <div class="gallery-title">${item.title}</div>
+                        <img src="${item.image.startsWith('/artiva/imageGaleri/') ? item.image : '/artiva/imageGaleri/' + item.image}" alt="${item.title}">
+                        <button onclick="toggleDescription(this)">Selengkapnya</button>
+                        <div class="gallery-description" style="display: none;">
+                            <p>Seniman: ${item.artist}</p>
+                        <p>${item.description}</p>
+                        </div>
+                    `;
+                    // Tambahkan item ke dalam gallery-container
+                    galleryContainer.appendChild(galleryItem);
+                });
+            } catch (error) {
+                console.error(error.message);
+                alert('Terjadi kesalahan saat memuat galeri.');
+            } finally {
+                // Sembunyikan loading setelah data diambil
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        // Fungsi untuk menampilkan atau menyembunyikan deskripsi
+        function toggleDescription(button) {
+            const description = button.nextElementSibling; // Deskripsi terkait tombol ini
+            const allDescriptions = document.querySelectorAll('.gallery-description'); // Semua deskripsi
+            const allButtons = document.querySelectorAll('.gallery-item button'); // Semua tombol
+
+            // Tutup semua deskripsi lain
+            allDescriptions.forEach(desc => {
+                if (desc !== description && desc.style.display === 'block') {
+                    desc.classList.remove('active'); // Hapus animasi aktif
+                    desc.style.animation = 'rollUp 0.3s ease forwards'; // Animasi keluar
+
+                    setTimeout(() => {
+                        desc.style.display = 'none'; // Sembunyikan setelah animasi
+                        desc.style.animation = ''; // Reset animasi
+                    }, 300);
+                }
+            });
+
+            // Atur ulang tombol lainnya agar tetap pada posisi awal
+            allButtons.forEach(btn => {
+                if (btn !== button) {
+                    btn.style.marginTop = '10px';
+                }
+            });
+
+            // Tampilkan atau sembunyikan deskripsi terkait tombol yang ditekan
+            const isVisible = description.style.display === 'block';
+            if (!isVisible) {
+                description.style.display = 'block'; // Tampilkan deskripsi
+                setTimeout(() => {
+                    description.classList.add('active'); // Tambahkan animasi muncul
+                    description.style.animation = 'rollDown 0.3s ease forwards'; // Animasi masuk
+                }, 10); // Jeda untuk animasi
+            } else {
+                description.classList.remove('active'); // Hapus animasi aktif
+                description.style.animation = 'rollUp 0.3s ease forwards'; // Animasi keluar
+                setTimeout(() => {
+                    description.style.display = 'none'; // Sembunyikan setelah animasi
+                    description.style.animation = ''; // Reset animasi
+                }, 300);
+            }
+        }
+
+        // Jalankan saat halaman dimuat
+        window.onload = fetchGallery;
+    </script>
+
+<footer class="footer">
+    <div class="header">
+        <h1>Mudah Untuk Memulai</h1>
+        <p>Dapatkan update eksklusif tentang karya terbaru, event, dan penawaran 
+            spesial langsung di inbox Anda.</p>
+        <div class="buttons">
+            <a href="register.html">Belanja Sekarang</a>
+            <a href="register.html">Buat Akun</a>
+        </div>
+    </div>
+    <div class="content">
+        <h2>Artiva.</h2>
+        <p>Artiva adalah platform yang berfokus pada pelestarian dan promosi seni 
+            serta budaya lokal Indonesia. Kami percaya bahwa seni memiliki kekuatan 
+            untuk menghubungkan masyarakat dengan akar budaya mereka.</p>
+        <p>artiva@gmail.com</p>
+        <div class="links">
+            <a href="index.html">Beranda</a> | 
+            <a href="about.html">Tentang Kami</a> | 
+            <a href="galeriGuest.html">Galeri</a> | 
+            <a href="seniman.html">Seniman</a> | 
+            <a href="register.html">Belanja</a>
+            <a href="https://wa.me/6285604077466?text=Halo,%20saya%20ingin%20bertanya!" target="_blank">Hubungi Kami</a>
+        </div>
+    </div>
+    <div class="bot-footer">
+        <p>SINCE, 2024</p>
+        <p>© 2024 COPYRIGHT BY ZARVAISM - ARTIVA</p>
+        <p><a href="#">TERM, PRIVACY POLICY</a></p>
+    </div>
+</footer>
+</body>
+</html>

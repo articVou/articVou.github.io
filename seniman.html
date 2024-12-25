@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seniman - Artiva</title>
+    <link rel="stylesheet" href="/artiva/css/style.css">
+    <style>
+        /* Bagian Galeri */
+        section {
+            padding: 20px;
+        }
+
+        /* Input pencarian */
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Teks loading */
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #777;
+            display: none;
+        }
+
+        /* Tampilan jika tidak ada hasil */
+        #no-results {
+            display: none;
+            text-align: center;
+            font-size: 16px;
+            color: #777;
+        }
+
+        /* Gallery Container */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Item Galeri */
+        .gallery-item {
+            position: relative;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Pastikan elemen lainnya ditata dari atas */
+            transition: box-shadow 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Judul Galeri */
+        .gallery-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        /* Gambar dalam Galeri */
+        .gallery-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            filter: blur(5px); /* Efek blur default */
+            transition: filter 0.3s ease;
+        }
+
+        /* Gambar saat hover */
+        .gallery-container .gallery-item img:hover {
+            filter: blur(0);
+        }
+
+        /* Deskripsi dalam Galeri */
+        .gallery-description {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            text-align: left;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: 0;
+            overflow-y: hidden;
+            opacity: 0;
+            transition: max-height 0.6s ease, opacity 0.6s ease; /* Perhalus transisi */
+        }
+
+        /* Animasi untuk roll down (muncul) */
+        @keyframes rollDown {
+            from {
+                max-height: 0;
+                opacity: 0;
+            }
+            to {
+                max-height: 400px;
+                opacity: 1;
+            }
+        }
+
+        /* Animasi untuk roll up (hilang) */
+        @keyframes rollUp {
+            from {
+                max-height: 400px;
+                opacity: 1;
+            }
+            to {
+                max-height: 0;
+                opacity: 0;
+            }
+        }
+
+        /* Tombol Selengkapnya */
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Artiva</div>
+        <div class="menu">
+            <a href="index.html">Beranda</a>
+            <a href="galeriGuest.html">Galeri</a>
+            <a href="event.html">Event</a>
+            <a href="about.html">Tentang Artiva</a>
+        </div>
+        <div class="auth">
+            <a href="register.html">Daftar Akun</a>
+            <a href="login.html">Masuk</a>
+        </div>        
+    </div>
+
+    <section>
+        <input type="text" id="search-input" placeholder="Cari gambar..." oninput="searchGallery()" aria-label="Cari galeri">
+        <p class="loading" id="loading">Memuat data seniman...</p>
+        <div class="gallery-container" id="gallery"></div>
+        <p id="no-results">Tidak ada hasil ditemukan.</p>
+    </section>
+
+    <script>
+        async function fetchGallery() {
+            const loadingElement = document.getElementById('loading');
+            const galleryContainer = document.getElementById('gallery');
+            const noResults = document.getElementById('no-results');
+
+            try {
+                loadingElement.style.display = 'block';
+                noResults.style.display = 'none';
+
+                const response = await fetch('seniman.php'); // Pastikan ini URL yang benar
+                const data = await response.json();
+
+                if (data.message) {
+                    noResults.style.display = 'block';
+                    return;
+                }
+
+                galleryContainer.innerHTML = ''; // Bersihkan kontainer sebelumnya
+
+                data.forEach(item => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.classList.add('gallery-item');
+
+                    galleryItem.innerHTML = `
+                        <div class="gallery-title">${item.nama_seniman}</div>
+                        <img src="/artiva/imageSeniman/${item.image}" alt="${item.nama_seniman}">
+                        <div class="gallery-description">
+                            <p><strong>Seniman:</strong> ${item.nama_seniman}</p>
+                            <p><strong>Tahun Lahir:</strong> ${item.lahir}</p>
+                            <p><strong>Tahun Wafat:</strong> ${item.wafat || 'Hingga kini'}</p>
+                            <p><strong>Aliran Seni:</strong> ${item.aliran_seni}</p>
+                            <p><strong>Karya Terkenal:</strong> ${item.karya_terkenal}</p>
+                            <p>${item.description}</p>
+                        </div>
+                        <button onclick="toggleDescription(this)">Selengkapnya</button>
+                    `;
+                    galleryContainer.appendChild(galleryItem);
+                });
+            } catch (error) {
+                console.error(error.message);
+                alert('Terjadi kesalahan saat memuat data seniman.');
+            } finally {
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        function toggleDescription(button) {
+            const description = button.previousElementSibling; // Deskripsi terkait tombol ini
+            const allDescriptions = document.querySelectorAll('.gallery-description'); // Semua deskripsi
+            const allButtons = document.querySelectorAll('.gallery-item button'); // Semua tombol
+
+            // Tutup semua deskripsi lain
+            allDescriptions.forEach(desc => {
+                if (desc !== description && desc.style.display === 'block') {
+                    desc.style.animation = 'rollUp 0.6s ease forwards'; // Animasi keluar yang lebih halus
+                    setTimeout(() => {
+                        desc.style.display = 'none'; // Sembunyikan setelah animasi
+                    }, 600); // Pastikan animasi selesai sebelum disembunyikan
+                }
+            });
+
+            // Atur ulang tombol lainnya agar tetap pada posisi awal
+            allButtons.forEach(btn => {
+                if (btn !== button) {
+                    btn.style.marginTop = '10px';
+                }
+            });
+
+            // Tampilkan atau sembunyikan deskripsi terkait tombol yang ditekan
+            const isVisible = description.style.display === 'block';
+            if (!isVisible) {
+                description.style.display = 'block'; // Tampilkan deskripsi
+                description.style.animation = 'rollDown 0.6s ease forwards'; // Animasi masuk yang lebih halus
+            } else {
+                description.style.animation = 'rollUp 0.6s ease forwards'; // Animasi keluar yang lebih halus
+                setTimeout(() => {
+                    description.style.display = 'none'; // Sembunyikan setelah animasi
+                }, 600); // Pastikan animasi selesai sebelum disembunyikan
+            }
+        }
+
+        function searchGallery() {
+            const searchInput = document.getElementById('search-input').value.toLowerCase();
+            const galleryItems = document.querySelectorAll('.gallery-item');
+
+            galleryItems.forEach(item => {
+                const title = item.querySelector('.gallery-title').textContent.toLowerCase();
+                if (title.includes(searchInput)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        window.onload = fetchGallery;
+    </script>
+
+    <footer class="footer">
+        <div class="header">
+            <h1>Mudah Untuk Memulai</h1>
+            <p>Dapatkan update eksklusif tentang karya terbaru, event, dan penawaran spesial langsung di inbox Anda.</p>
+            <div class="buttons">
+                <a href="register.html">Belanja Sekarang</a>
+            </div>
+        </div>
+        <div class="content">
+            <h2>Artiva.</h2>
+            <p>Artiva adalah platform yang berfokus pada pelestarian dan promosi seni serta budaya lokal Indonesia.</p>
+            <p>artiva@gmail.com</p>
+            <div class="links">
+                <a href="index.html">Beranda</a> | 
+                <a href="about.html">Tentang Kami</a> | 
+                <a href="galeriGuest.html">Galeri</a> | 
+                <a href="seniman.html">Seniman</a> | 
+                <a href="register.html">Belanja</a> |
+                <a href="https://wa.me/6285604077466?text=Halo,%20saya%20ingin%20bertanya!" target="_blank">Hubungi Kami</a>
+            </div>
+        </div>
+        <div class="bot-footer">
+            <p>SINCE, 2024</p>
+            <p>© 2024 COPYRIGHT BY ZARVAISM - ARTIVA</p>
+            <p><a href="#">TERM, PRIVACY POLICY</a></p>
+        </div>
+    </footer>
+</body>
+</html>

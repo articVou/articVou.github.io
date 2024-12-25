@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Akun Artiva</title>
+    <style>
+        /* Gaya CSS */
+        body {
+            font-family: 'Verdana', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url(assets/background_login.jpg);
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+        .form h2 {
+            margin-bottom: 20px;
+            color: #4facfe;
+        }
+        .form p {
+            font-size: 14px;
+            color: #666;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 5px rgba(79, 172, 254, 0.5);
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4facfe;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #3587f5;
+        }
+        .back-button {
+            background-color: #e0e0e0;
+            color: black;
+            margin-top: 20px;
+        }
+        .back-button:hover {
+            background-color: #c0c0c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login" class="form">
+            <h2>Login ke Artiva</h2>
+            <p>Masukkan email dan kata sandi Anda untuk melanjutkan.</p>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Masukkan email Anda" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Masukkan password Anda" required>
+                <span class="toggle-password" onclick="toggleVisibility('password')">&#128065;</span>
+            </div>
+            <button onclick="loginUser()">Masuk</button>
+            <button class="back-button" onclick="goBack()">Kembali</button>
+        </div>
+    </div>
+    <script>
+        function toggleVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                alert('Email dan Password harus diisi!');
+                return;
+            }
+
+            try {
+                const response = await fetch('login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    switch (result.role) {
+                        case 'user':
+                            window.location.href = 'user/indexUser.html';
+                            break;
+                        case 'editor':
+                            window.location.href = 'editor/indexEditor.html';
+                            break;
+                        case 'admin':
+                            window.location.href = 'admin/indexAdmin.html';
+                            break;
+                        default:
+                            alert('Role tidak valid!');
+                    }
+                } else {
+                    alert('Login gagal: ' + result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan saat mencoba login.');
+            }
+        }
+    </script>
+</body>
+</html>
